@@ -27,15 +27,17 @@ def main_loop(**kwargs):
     last_sub_reddit = ''
     sub_reddits = get_subreddits()
     while start_btn["text"] == "Stop":
+        # - Open browser - #
+        driver = start_driver(proxy=is_proxy, headless=is_headless)
+
+        # - Login - #
         while True:
             try:
-                # - Open browser and login - #
-                driver = start_driver(proxy=is_proxy, headless=is_headless)
                 driver = login(driver)
                 break
             except Exception as e:
                 output_box.insert(
-                    tk.END, f"[{time.strftime('%D %H:%M:%S')}] Error logging in : {e}")
+                    0, f"[{time.strftime('%D %H:%M:%S')}] Error logging in : {e}")
 
         # quits and relogs after time_restart seconds
         start_time = time.time()
@@ -45,7 +47,7 @@ def main_loop(**kwargs):
             # - Post message - #
             date = time.strftime("%D %H:%M:%S")
             output_box.insert(
-                tk.END, f"[{date}] Posting a new message...")
+                0, f"[{date}] Posting a new message...")
             # - Getting a random subreddit different than the last one - #
             if last_sub_reddit and len(sub_reddits) > 1:
                 sub_reddits.remove(last_sub_reddit)
@@ -60,19 +62,19 @@ def main_loop(**kwargs):
                                                  is_spoiler=is_spoiler, is_nsfw=is_nsfw, is_flair=is_flair)
             except Exception as e:
                 date = time.strftime("%D %H:%M:%S")
-                output_box.insert(tk.END, f"[{date}] Error: {e}")
+                output_box.insert(0, f"[{date}] Error: {e}")
                 break
 
             if not is_successful:
                 output_box.insert(
-                    tk.END, f"[{date}] Failed to post a message, restarting...")
+                    0, f"[{date}] Failed to post a message, restarting...")
                 break
 
             # - Wait - #
             wait_time = random.randint(wait_min, wait_max)
             date = time.strftime("%D %H:%M:%S")
             output_box.insert(
-                tk.END, f"[{date}] Waiting {int(wait_time)} seconds")
+                0, f"[{date}] Waiting {int(wait_time)} seconds")
 
             # - Sleep but check if bot is stopped - #
             for sec_i in range(wait_time):
@@ -86,7 +88,7 @@ def main_loop(**kwargs):
         if start_btn["text"] == "Stop":
             date = time.strftime("%D %H:%M:%S")
             output_box.insert(
-                tk.END, f"[{date}] Restarting browser...")
+                0, f"[{date}] Restarting browser...")
         driver.quit()
 
 
@@ -107,15 +109,15 @@ def start():
             wait_min, wait_max, timeout = map(
                 int, [wait_min, wait_max, timeout])
         except ValueError:
-            output_box.insert(tk.END, "Invalid time values")
+            output_box.insert(0, "Invalid time values")
             return
         try:
             time_restart = int(time_restart)
         except ValueError:
-            output_box.insert(tk.END, "Invalid time restart value")
+            output_box.insert(0, "Invalid time restart value")
             return
         if wait_min > wait_max:
-            output_box.insert(tk.END, "Wait min must be less than wait max")
+            output_box.insert(0, "Wait min must be less than wait max")
             return
 
         # - Start the main loop - #
@@ -125,11 +127,11 @@ def start():
         thread = threading.Thread(target=main_loop, kwargs=kwargs)
         thread.start()
         output_box.insert(
-            tk.END, f"[{time.strftime('%D %H:%M:%S')}] Starting the bot...")
+            0, f"[{time.strftime('%D %H:%M:%S')}] Starting the bot...")
         start_btn["text"] = "Stop"
     else:
         output_box.insert(
-            tk.END, f"[{time.strftime('%D %H:%M:%S')}] Stopping the bot...")
+            0, f"[{time.strftime('%D %H:%M:%S')}] Stopping the bot...")
         start_btn["text"] = "Stopping..."
         start_btn["state"] = "disabled"
 
